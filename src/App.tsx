@@ -1,38 +1,31 @@
-import * as React from "react"
+import { ChakraProvider, theme } from "@chakra-ui/react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import SignUp from "./Components/pages/Authentication/SignUp";
+import Login from "./Components/pages/Authentication/Login";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Home from "./Components/pages/Home/Home";
+import CreateArtworkForm from "./Components/pages/Artworks/CreateArtwork";
 import {
-  ChakraProvider,
-  Box,
-  Text,
-  Link,
-  VStack,
-  Code,
-  Grid,
-  theme,
-} from "@chakra-ui/react"
-import { ColorModeSwitcher } from "./ColorModeSwitcher"
-import { Logo } from "./Logo"
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import ListArtworks from "./Components/pages/Artworks/ListArtworks";
+
+const queryClient = new QueryClient();
 
 export const App = () => (
-  <ChakraProvider theme={theme}>
-    <Box textAlign="center" fontSize="xl">
-      <Grid minH="100vh" p={3}>
-        <ColorModeSwitcher justifySelf="flex-end" />
-        <VStack spacing={8}>
-          <Logo h="40vmin" pointerEvents="none" />
-          <Text>
-            Edit <Code fontSize="xl">src/App.tsx</Code> and save to reload.
-          </Text>
-          <Link
-            color="teal.500"
-            href="https://chakra-ui.com"
-            fontSize="2xl"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn Chakra
-          </Link>
-        </VStack>
-      </Grid>
-    </Box>
-  </ChakraProvider>
-)
+  <QueryClientProvider client={queryClient}>
+    <ChakraProvider theme={theme}>
+      <Router>
+        < Home isAdmin={false}/>
+        <Routes>
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/create-artwork" element={<CreateArtworkForm />} />
+          <Route path="/" element={<Home isAdmin={true}/>} />
+          <Route path="/list-artworks" element={<ListArtworks />} />
+        </Routes>
+      </Router>
+    </ChakraProvider>
+  </QueryClientProvider>
+);
