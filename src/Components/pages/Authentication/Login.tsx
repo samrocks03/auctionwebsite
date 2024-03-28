@@ -4,6 +4,8 @@ import { loginSchema } from "../../YupSchema/yup.schema";
 import AuthForm from "./AuthForm";
 import { useSignInAccount } from "../../Hooks/authentication.hooks";
 import { IPostLogin } from "../../../Types/authentication.types";
+import { ToastContainer } from "react-toastify";
+import { Spinner } from "@chakra-ui/react";
 
 const initialValues = {
   email: "svkulkarni23@gmail.com",
@@ -11,10 +13,10 @@ const initialValues = {
 };
 
 const Login = () => {
-  const authToken = localStorage.getItem('authorizationToken');
-  const { signInMutation, isSignInPending }   = useSignInAccount();
+  const authToken = localStorage.getItem("authorizationToken");
+  const { signInMutation, isSignInPending } = useSignInAccount();
   const navigate = useNavigate();
-  
+
   const handleLogin = (values: any) => {
     // localStorage.setItem("authenticationToken", "asdfghjklqwertyuiopzxcvbnm");
 
@@ -26,7 +28,7 @@ const Login = () => {
     if (!isSignInPending) {
       signInMutation(payload, {
         onSuccess: () => {
-          navigate("/");
+          navigate("/list-artworks");
         },
         onError: (error) => {
           console.log(error);
@@ -36,16 +38,16 @@ const Login = () => {
   };
 
   return (
-    <AuthForm
-      initialValues={initialValues}
-      validationSchema={loginSchema}
-      onSubmit={handleLogin}
-      formType="login"
-    />
+    <>
+      <ToastContainer />
+      <AuthForm
+        initialValues={initialValues}
+        validationSchema={loginSchema}
+        onSubmit={handleLogin}
+        formType="login"
+      />
+    </>
   );
 };
 
 export default Login;
-
-
-

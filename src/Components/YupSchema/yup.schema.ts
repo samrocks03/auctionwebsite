@@ -15,12 +15,12 @@ export const signUpSchema = Yup.object().shape({
 
 
 export const createArtWorkSchema = Yup.object().shape({
-  name: Yup.string().required('Name is required'),
-  category: Yup.string().required('Category is required'),
-  description: Yup.string().required('Description is required'),
-  imageUrl: Yup.string().required('Image URL is required'),
-  amount: Yup.number()
-    .typeError('Amount must be a number')
-    .required('Amount is required')
-    .positive('Amount must be positive'),
-})
+      name: Yup.string().required('Name is required'),
+      category: Yup.string().required('Category is required'),
+      description: Yup.string().required('Description is required'),
+      imageUrl: Yup.string().required('Image URL is required'),
+      amount: Yup.number()
+        .typeError('Amount must be a number')
+        .required('Amount is required')
+        .positive('Amount must be positive'),
+    })

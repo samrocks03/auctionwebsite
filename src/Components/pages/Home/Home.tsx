@@ -9,6 +9,7 @@ import {
   DrawerCloseButton,
   Button,
   useDisclosure,
+  Box,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 // import ListArtworks from "../Artworks/ListArtworks";
@@ -22,7 +23,7 @@ const Home = ({ isAdmin }: { isAdmin: boolean }) => {
   // const btnRef = useRef();
 
   const drawerOptions = isAdmin
-    ? [{ name: "View All Users", path: "/view-all-users" }]
+    ? [{ name: "View All Users", path: "/users" }]
     : [
         { name: "Create Artwork", path: "/create-artwork" },
         { name: "List Artworks", path: "/list-artworks" }, // Add List Artworks option
@@ -34,7 +35,10 @@ const Home = ({ isAdmin }: { isAdmin: boolean }) => {
 
   return (
     <>
-      <div style={{ display: "flex" }}>
+      <Box
+        style={{ display: "flex" }}
+        // bgGradient="linear-gradient(45deg, #FFC107, #FF5722)"
+      >
         <Button ref={btnRef} colorScheme="teal" onClick={onOpen}>
           Open
         </Button>
@@ -78,7 +82,7 @@ const Home = ({ isAdmin }: { isAdmin: boolean }) => {
 
         {/* Render List Artworks component conditionally */}
         {/* {isListArtworksOpen && <ListArtworks />} */}
-      </div>
+      </Box>
     </>
   );
 };

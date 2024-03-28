@@ -2,6 +2,9 @@ import { IPostSignUp } from "../../../Types/authentication.types";
 import { signUpSchema } from "../../YupSchema/yup.schema";
 import AuthForm from "./AuthForm";
 import { useSignUpAccount } from "../../Hooks/authentication.hooks";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const initialValues = {
   first_name: "",
@@ -12,6 +15,7 @@ const initialValues = {
 
 const SignUp = () => {
   const { signUpMutation, isSignUpPending } = useSignUpAccount();
+  const navigate = useNavigate();
 
   const handleSignUp = (values: any) => {
     const payload: IPostSignUp = {
@@ -24,22 +28,22 @@ const SignUp = () => {
     if (!isSignUpPending) {
       signUpMutation(payload, {
         onSuccess: () => {
-          console.log(values);
-        },
-        onError: (error) => {
-          console.log(error);
+          navigate("/");
         },
       });
     }
   };
 
   return (
-    <AuthForm
-      initialValues={initialValues}
-      validationSchema={signUpSchema}
-      onSubmit={handleSignUp}
-      formType="signup"
-    />
+    <>
+      <ToastContainer />
+      <AuthForm
+        initialValues={initialValues}
+        validationSchema={signUpSchema}
+        onSubmit={handleSignUp}
+        formType="signup"
+      />
+    </>
   );
 };
 
