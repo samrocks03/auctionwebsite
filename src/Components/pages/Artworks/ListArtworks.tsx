@@ -34,8 +34,8 @@ const ListArtworks = ({ artworkData }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const cancelRef = useRef<HTMLButtonElement | null>(null);
 
-  const { artWorksData } = useGetArtworks();
-  console.log("12345678---->", artWorksData);
+  // const { artWorksData } = useGetArtworks();
+  // console.log("12345678---->", artWorksData);
 
   const openAlertDialog = (artwork: Artwork) => {
     setSelectedArtwork(artwork);

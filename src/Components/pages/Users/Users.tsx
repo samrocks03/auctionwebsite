@@ -24,8 +24,9 @@ const Users = () => {
             borderWidth="1px"
             borderRadius="lg"
             overflow="hidden"
+            
           >
-            <Flex p={4} alignItems="center">
+            <Flex borderColor="gray.200" p={4} alignItems="center">
               <Avatar size="md" name={`${user.first_name} ${user.last_name}`} />
               <VStack ml={4} alignItems="flex-start">
                 <Text fontWeight="bold">{`${user.first_name} ${user.last_name}`}</Text>

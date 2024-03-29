@@ -6,21 +6,42 @@ export const loginSchema = Yup.object().shape({
 });
 
 export const signUpSchema = Yup.object().shape({
-  firstName: Yup.string().required("First name is Required"),
-  lastName: Yup.string().required("Last name is Required"),
-  email: Yup.string().email("Invalid email").required("email is Required"),
-  password: Yup.string().required("password is Required"),
+  firstName: Yup.string()
+    .required('First name is required')
+    .matches(/^\S*$/, 'First name must not contain any spaces')
+    .matches(/^[A-Z][a-zA-Z]*$/, 'First name must start with a capital letter')
+    .min(2, 'First name must be at least 2 characters long'),
+
+  lastName: Yup.string()
+    .required('Last name is required')
+    .matches(/^\S*$/, 'Last name must not contain any spaces')
+    .matches(/^[A-Z][a-zA-Z]*$/, 'Last name must start with a capital letter')
+    .min(2, 'Last name must be at least 2 characters long'),
+
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required')
+    .matches(/^\S*$/, 'Email must not contain any spaces')
+    .test('is-lowercase', 'Email must be in lowercase', value => /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(value)),
+
+  password: Yup.string()
+    .min(8, 'Password must be at least 8 characters long')
+    .matches(/^\S*$/, 'Password must not contain any spaces')
+    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .matches(/[0-9]/, 'Password must contain at least one digit')
+    .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
 });
 
 
 
 export const createArtWorkSchema = Yup.object().shape({
-      name: Yup.string().required('Name is required'),
-      category: Yup.string().required('Category is required'),
-      description: Yup.string().required('Description is required'),
-      imageUrl: Yup.string().required('Image URL is required'),
-      amount: Yup.number()
-        .typeError('Amount must be a number')
-        .required('Amount is required')
-        .positive('Amount must be positive'),
-    })
+  name: Yup.string().required('Name is required'),
+  category: Yup.string().required('Category is required'),
+  description: Yup.string().required('Description is required'),
+  imageUrl: Yup.string().required('Image URL is required'),
+  amount: Yup.number()
+    .typeError('Amount must be a number')
+    .required('Amount is required')
+    .positive('Amount must be positive'),
+})

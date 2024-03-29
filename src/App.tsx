@@ -12,30 +12,42 @@ import ListArtworks from "./Components/pages/Artworks/ListArtworks";
 import { artworkData } from "./constants";
 import { Artwork } from "./Types/types";
 import Users from "./Components/pages/Users/Users";
-
+// import Protected from "./Components/Provider/AuthLayout";
 const queryClient = new QueryClient();
 
 export const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ChakraProvider theme={theme}>
-      <Router>
-        <Home isAdmin={true} />
-        <Routes>
-          <Route path="/users" element={<Users />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/create-artwork" element={<CreateArtworkForm />} />
-          <Route path="/" element={<div></div>} />
-          <Route
-            path="/list-artworks"
+  <div>
+    <QueryClientProvider client={queryClient}>
+      <ChakraProvider theme={theme}>
+        <Router>
+          <Home isAdmin={true} />
+          <Routes>
+            {/* <Route
+            path="/users"
             element={
-              <ListArtworks artworkData={artworkData as unknown as Artwork[]} />
+              <Protected authentication={true}>
+              <Users />
+              </Protected>
             }
-          />
+          /> */}
+            <Route path="/users" element={<Users />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/create-artwork" element={<CreateArtworkForm />} />
+            <Route path="/" element={<div></div>} />
+            <Route
+              path="/list-artworks"
+              element={
+                <ListArtworks
+                  artworkData={artworkData as unknown as Artwork[]}
+                />
+              }
+            />
 
-          {/* <Route path="/list-artworks" element={<ListArtworks />} /> */}
-        </Routes>
-      </Router>
-    </ChakraProvider>
-  </QueryClientProvider>
+            {/* <Route path="/list-artworks" element={<ListArtworks />} /> */}
+          </Routes>
+        </Router>
+      </ChakraProvider>
+    </QueryClientProvider>
+  </div>
 );

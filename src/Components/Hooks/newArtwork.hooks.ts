@@ -22,6 +22,8 @@ export const useGetArtworks = () => {
 
     // const authToken = localStorage.getItem("authenticationToken"); // Retrieve authentication token from localStorage
     // const tokenStr = localStorage.getItem('authenticationToken');
+    
+    // console.log("Aaple cookies-------->",document.cookie.toString());
     const { isLoading, error, data } = useQuery({
         queryKey: ['artworks'],
         queryFn: () => axios.get(ARTWORKS_API, { withCredentials: true })

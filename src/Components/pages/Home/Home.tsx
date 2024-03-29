@@ -10,20 +10,24 @@ import {
   Button,
   useDisclosure,
   Box,
+  Flex,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-// import ListArtworks from "../Artworks/ListArtworks";
 import { useRef } from "react";
+import { HamburgerIcon } from "@chakra-ui/icons";
 
 const Home = ({ isAdmin }: { isAdmin: boolean }) => {
   // const [isListArtworksOpen, setIsListArtworksOpen] = useState(false); // State to track whether List Artworks is open
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement | null>(null);
-  // const btnRef = useRef();
 
   const drawerOptions = isAdmin
-    ? [{ name: "View All Users", path: "/users" }]
+    ? [
+        { name: "View All Users", path: "/users" },
+        { name: "Create Artwork", path: "/create-artwork" },
+        { name: "List Artworks", path: "/list-artworks" },
+      ]
     : [
         { name: "Create Artwork", path: "/create-artwork" },
         { name: "List Artworks", path: "/list-artworks" }, // Add List Artworks option
@@ -35,13 +39,16 @@ const Home = ({ isAdmin }: { isAdmin: boolean }) => {
 
   return (
     <>
-      <Box
-        style={{ display: "flex" }}
-        // bgGradient="linear-gradient(45deg, #FFC107, #FF5722)"
-      >
-        <Button ref={btnRef} colorScheme="teal" onClick={onOpen}>
-          Open
-        </Button>
+      <Box h={"auto"} style={{ display: "flex" }}>
+        <Flex
+          justifyContent="flex-end"
+          alignItems="center"
+          
+        >
+          <Button ref={btnRef} colorScheme="teal" onClick={onOpen}>
+            <HamburgerIcon />
+          </Button>
+        </Flex>
 
         <Drawer placement="left" isOpen={isOpen} onClose={onClose}>
           <DrawerOverlay />
@@ -62,12 +69,6 @@ const Home = ({ isAdmin }: { isAdmin: boolean }) => {
                       variant="link"
                       w="100%"
                       textAlign="left"
-                      onClick={() => {
-                        // Toggle List Artworks component when clicking on "List Artworks" option
-                        if (option.path === "/list-artworks") {
-                          // toggleListArtworks();
-                        }
-                      }}
                     >
                       {option.name}
                     </Button>
