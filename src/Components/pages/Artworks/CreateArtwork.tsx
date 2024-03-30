@@ -21,88 +21,67 @@ import {
 } from "@chakra-ui/react";
 import { createArtWorkSchema } from "../../YupSchema/yup.schema";
 import { useRef, useState } from "react";
-import { ICreateArtwork } from "../../../Types/authentication.types";
+import { Category, ICreateArtwork } from "../../../Types/authentication.types";
 import { usePostArtworks } from "../../Hooks/newArtwork.hooks";
 
-const initialValues = {
+const initialValues: ICreateArtwork = {
   name: "",
-  category: "",
+  category: Category.Pencil_Art,
   description: "",
-  imageUrl: "",
-  amount: "",
-  duration: "",
+  image: "",
+  starting_price: 1,
+  duration: 2,
 };
 
 const CreateArtworkForm = () => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [isAuctionCreated, setIsAuctionCreated] = useState(false);
+
   const cancelRef = useRef<HTMLButtonElement | null>(null);
   const { postArtworksMutation, isPostArtworksPending } = usePostArtworks();
   const toast = useToast();
-
-  const formik = useFormik({
-    initialValues: initialValues,
-    validationSchema: createArtWorkSchema,
-    onSubmit: (values, actions) => {
-      console.log("Artwork created!", values);
-    },
-  });
 
   const handleCloseConfirmation = () => {
     setIsConfirmationOpen(false);
   };
 
   const handleOpenConfirmation = () => {
-    // console.log("Formik errors:", formik.errors);
-    // console.log("Formik isValid:", formik.isValid);
-
-    // console.log("Bro", !formik.errors);
     const errLength = Object.keys(formik.errors).length;
-    // console.log("Bro 2 bro-->", errLength);
-
     if (!formik.errors || errLength === 0) {
       setIsConfirmationOpen(true);
     }
   };
 
-  const handleConfirmCreateAuction = (values: any) => {
+  const handleConfirmCreateAuction = (values: {
+    name: any;
+    category: any;
+    description: any;
+    image: any;
+    starting_price: any;
+    duration: any;
+  }) => {
     const payload: ICreateArtwork = {
       name: values.name,
       category: values.category,
       description: values.description,
-      imageUrl: values.imageUrl,
-      amount: values.amount,
+      image: values.image,
+      starting_price: values.starting_price,
       duration: values.duration,
     };
 
     setIsAuctionCreated(true);
     setIsConfirmationOpen(false);
-
-    if (!isPostArtworksPending) {
-      postArtworksMutation(payload, {
-        onSuccess: () => {
-          toast({
-            title: "Artwork created!",
-            description: "Your artwork has been created!",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-        },
-        onError: (error) => {
-          toast({
-            title: "Error!",
-            description: `${error}`,
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-          });
-
-          console.log(error.message);
-        },
-      });
-    }
+    postArtworksMutation(payload);
   };
+
+  const formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: createArtWorkSchema,
+    onSubmit: (values, actions) => {
+      // handleConfirmCreateAuction(values);
+      // console.log("Artwork created in create artwork!");
+    },
+  });
 
   return (
     <Box bg="#d4d4d4">
@@ -198,25 +177,23 @@ const CreateArtworkForm = () => {
 
           <Box gridColumn="span 2">
             <FormControl
-              isInvalid={
-                formik.touched.imageUrl && Boolean(formik.errors.imageUrl)
-              }
+              isInvalid={formik.touched.image && Boolean(formik.errors.image)}
             >
-              <FormLabel htmlFor="imageUrl" fontWeight="bold">
+              <FormLabel htmlFor="image" fontWeight="bold">
                 Image URL
               </FormLabel>
               <Input
-                id="imageUrl"
-                {...formik.getFieldProps("imageUrl")}
+                id="image"
+                {...formik.getFieldProps("image")}
                 placeholder="Enter URL of artwork image"
                 borderRadius="md"
                 borderColor="gray.300"
                 _hover={{ borderColor: "gray.400" }}
                 _focus={{ borderColor: "blue.400" }}
               />
-              {formik.touched.imageUrl && formik.errors.imageUrl && (
+              {formik.touched.image && formik.errors.image && (
                 <Text color="red" fontSize="sm">
-                  {formik.errors.imageUrl}
+                  {formik.errors.image}
                 </Text>
               )}
             </FormControl>
@@ -224,26 +201,30 @@ const CreateArtworkForm = () => {
 
           <Box>
             <FormControl
-              isInvalid={Boolean(formik.errors.amount) && formik.touched.amount}
+              isInvalid={
+                Boolean(formik.errors.starting_price) &&
+                formik.touched.starting_price
+              }
             >
-              <FormLabel htmlFor="amount" fontWeight="bold">
+              <FormLabel htmlFor="starting_price" fontWeight="bold">
                 Amount
               </FormLabel>
               <Input
-                id="amount"
-                {...formik.getFieldProps("amount")}
+                id="starting_price"
+                {...formik.getFieldProps("starting_price")}
                 type="number"
-                placeholder="Enter amount"
+                placeholder="Enter Starting Price"
                 borderRadius="md"
                 borderColor="gray.300"
                 _hover={{ borderColor: "gray.400" }}
                 _focus={{ borderColor: "blue.400" }}
               />
-              {formik.touched.amount && formik.errors.amount && (
-                <Text color="red" fontSize="sm">
-                  {formik.errors.amount}
-                </Text>
-              )}
+              {formik.touched.starting_price &&
+                formik.errors.starting_price && (
+                  <Text color="red" fontSize="sm">
+                    {formik.errors.starting_price}
+                  </Text>
+                )}
             </FormControl>
           </Box>
 
@@ -275,7 +256,7 @@ const CreateArtworkForm = () => {
             <Button
               type="submit"
               colorScheme="blue"
-              isLoading={formik.isSubmitting}
+              // isLoading={formik.isSubmitting}
               onClick={handleOpenConfirmation}
               loadingText="Creating..."
               borderRadius="md"
@@ -305,7 +286,9 @@ const CreateArtworkForm = () => {
             <Button
               colorScheme="blue"
               ml={3}
-              onClick={handleConfirmCreateAuction}
+              onClick={() => {
+                handleConfirmCreateAuction(formik.values);
+              }}
             >
               Yes
             </Button>

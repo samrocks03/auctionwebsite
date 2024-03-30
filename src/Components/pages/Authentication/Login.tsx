@@ -18,7 +18,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = (values: any) => {
-    // localStorage.setItem("authenticationToken", "asdfghjklqwertyuiopzxcvbnm");
 
     const payload: IPostLogin = {
       email: values.email,

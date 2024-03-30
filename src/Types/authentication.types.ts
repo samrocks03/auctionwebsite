@@ -12,7 +12,7 @@ export interface AuthFormProps {
     formType: "signup" | "login";
 }
 
-enum Category { "Canvas_Painting", "Pencil_Art" };
+export enum Category { "Canvas_Painting", "Pencil_Art" };
 
 export interface IPostLogin {
     email: string;
@@ -31,7 +31,7 @@ export interface ICreateArtwork {
     name: string;
     category: Category,
     description: string,
-    imageUrl: string,
-    amount: number,
+    image: string,
+    starting_price: number,
     duration: number
 }
