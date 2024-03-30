@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useFormik } from "formik";
 import {
   Grid,
@@ -7,8 +8,8 @@ import {
   Input,
   Select,
   Textarea,
+  Text,
   Button,
-  FormErrorMessage,
   AlertDialog,
   AlertDialogBody,
   AlertDialogCloseButton,
@@ -20,6 +21,8 @@ import {
 } from "@chakra-ui/react";
 import { createArtWorkSchema } from "../../YupSchema/yup.schema";
 import { useRef, useState } from "react";
+import { ICreateArtwork } from "../../../Types/authentication.types";
+import { usePostArtworks } from "../../Hooks/newArtwork.hooks";
 
 const initialValues = {
   name: "",
@@ -27,49 +30,84 @@ const initialValues = {
   description: "",
   imageUrl: "",
   amount: "",
+  duration: "",
 };
 
 const CreateArtworkForm = () => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [isAuctionCreated, setIsAuctionCreated] = useState(false);
   const cancelRef = useRef<HTMLButtonElement | null>(null);
+  const { postArtworksMutation, isPostArtworksPending } = usePostArtworks();
+  const toast = useToast();
+
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: createArtWorkSchema,
     onSubmit: (values, actions) => {
       console.log("Artwork created!", values);
-      actions.setSubmitting(false);
     },
   });
-  const toast = useToast();
 
   const handleCloseConfirmation = () => {
     setIsConfirmationOpen(false);
   };
 
   const handleOpenConfirmation = () => {
-    setIsConfirmationOpen(true);
+    // console.log("Formik errors:", formik.errors);
+    // console.log("Formik isValid:", formik.isValid);
+
+    // console.log("Bro", !formik.errors);
+    const errLength = Object.keys(formik.errors).length;
+    // console.log("Bro 2 bro-->", errLength);
+
+    if (!formik.errors || errLength === 0) {
+      setIsConfirmationOpen(true);
+    }
   };
 
-  const handleConfirmCreateAuction = () => {
+  const handleConfirmCreateAuction = (values: any) => {
+    const payload: ICreateArtwork = {
+      name: values.name,
+      category: values.category,
+      description: values.description,
+      imageUrl: values.imageUrl,
+      amount: values.amount,
+      duration: values.duration,
+    };
+
     setIsAuctionCreated(true);
     setIsConfirmationOpen(false);
-    // Additional logic to create auction
-    // Show toast message
-    toast({
-      title: "Artwork created successfully",
-      position: "top-right",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    });
+
+    if (!isPostArtworksPending) {
+      postArtworksMutation(payload, {
+        onSuccess: () => {
+          toast({
+            title: "Artwork created!",
+            description: "Your artwork has been created!",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+        },
+        onError: (error) => {
+          toast({
+            title: "Error!",
+            description: `${error}`,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+
+          console.log(error.message);
+        },
+      });
+    }
   };
 
   return (
     <Box bg="#d4d4d4">
       <form onSubmit={formik.handleSubmit}>
         <Grid
-          // className="broo"
           ml="25%"
           color="blue"
           templateColumns="repeat(2, 1fr)"
@@ -80,7 +118,7 @@ const CreateArtworkForm = () => {
         >
           <Box gridColumn="span 2">
             <FormControl
-              isInvalid={!!formik.errors.name && formik.touched.name}
+              isInvalid={formik.touched.name && Boolean(formik.errors.name)}
             >
               <FormLabel htmlFor="name" fontWeight="bold">
                 Name
@@ -94,12 +132,19 @@ const CreateArtworkForm = () => {
                 _hover={{ borderColor: "gray.400" }}
                 _focus={{ borderColor: "blue.400" }}
               />
-              <FormErrorMessage>{!!formik.errors.name}</FormErrorMessage>
+              {formik.touched.name && formik.errors.name && (
+                <Text color="red" fontSize="sm">
+                  {formik.errors.name}
+                </Text>
+              )}
             </FormControl>
           </Box>
+
           <Box>
             <FormControl
-              isInvalid={!!formik.errors.category && formik.touched.category}
+              isInvalid={
+                formik.touched.category && Boolean(formik.errors.category)
+              }
             >
               <FormLabel htmlFor="category" fontWeight="bold">
                 Category
@@ -116,13 +161,18 @@ const CreateArtworkForm = () => {
                 <option value="Canvas_Painting">Canvas Painting</option>
                 <option value="Pencil_Art">Pencil Art</option>
               </Select>
-              <FormErrorMessage>{!!formik.errors.category}</FormErrorMessage>
+              {formik.touched.category && formik.errors.category && (
+                <Text color="red" fontSize="sm">
+                  {formik.errors.category}
+                </Text>
+              )}
             </FormControl>
           </Box>
+
           <Box gridColumn="span 2">
             <FormControl
               isInvalid={
-                !!formik.errors.description && formik.touched.description
+                formik.touched.description && Boolean(formik.errors.description)
               }
             >
               <FormLabel htmlFor="description" fontWeight="bold">
@@ -137,12 +187,20 @@ const CreateArtworkForm = () => {
                 _hover={{ borderColor: "gray.400" }}
                 _focus={{ borderColor: "blue.400" }}
               />
-              <FormErrorMessage>{!!formik.errors.description}</FormErrorMessage>
+              {formik.touched.description && formik.errors.description && (
+                <Text color="red" fontSize="sm">
+                  {formik.errors.description}
+                </Text>
+              )}
+              {/* <FormErrorMessage>{!!formik.errors.description}</FormErrorMessage> */}
             </FormControl>
           </Box>
+
           <Box gridColumn="span 2">
             <FormControl
-              isInvalid={!!formik.errors.imageUrl && formik.touched.imageUrl}
+              isInvalid={
+                formik.touched.imageUrl && Boolean(formik.errors.imageUrl)
+              }
             >
               <FormLabel htmlFor="imageUrl" fontWeight="bold">
                 Image URL
@@ -156,12 +214,17 @@ const CreateArtworkForm = () => {
                 _hover={{ borderColor: "gray.400" }}
                 _focus={{ borderColor: "blue.400" }}
               />
-              <FormErrorMessage>{!!formik.errors.imageUrl}</FormErrorMessage>
+              {formik.touched.imageUrl && formik.errors.imageUrl && (
+                <Text color="red" fontSize="sm">
+                  {formik.errors.imageUrl}
+                </Text>
+              )}
             </FormControl>
           </Box>
+
           <Box>
             <FormControl
-              isInvalid={!!formik.errors.amount && formik.touched.amount}
+              isInvalid={Boolean(formik.errors.amount) && formik.touched.amount}
             >
               <FormLabel htmlFor="amount" fontWeight="bold">
                 Amount
@@ -176,9 +239,38 @@ const CreateArtworkForm = () => {
                 _hover={{ borderColor: "gray.400" }}
                 _focus={{ borderColor: "blue.400" }}
               />
-              <FormErrorMessage>{!!formik.errors.amount}</FormErrorMessage>
+              {formik.touched.amount && formik.errors.amount && (
+                <Text color="red" fontSize="sm">
+                  {formik.errors.amount}
+                </Text>
+              )}
             </FormControl>
           </Box>
+
+          <Box>
+            <FormControl>
+              <FormLabel htmlFor="duration" fontWeight="bold">
+                Duration
+              </FormLabel>
+              <Input
+                id="duration"
+                {...formik.getFieldProps("duration")}
+                type="number"
+                min={1}
+                placeholder="Enter duration"
+                borderRadius="md"
+                borderColor="gray.300"
+                _hover={{ borderColor: "gray.400" }}
+                _focus={{ borderColor: "blue.400" }}
+              />
+              {formik.touched.duration && formik.errors.duration && (
+                <Text color="red" fontSize="sm">
+                  {formik.errors.duration}
+                </Text>
+              )}
+            </FormControl>
+          </Box>
+
           <Box>
             <Button
               type="submit"

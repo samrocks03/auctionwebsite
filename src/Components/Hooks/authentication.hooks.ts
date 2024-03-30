@@ -5,7 +5,9 @@ import axios, { AxiosError } from "axios";
 import { ARTWORKS_API, SIGNUP_API, LOGIN_API } from "../../ENDPOINTS";
 import { toast } from "react-toastify";
 import { IPostLogin, IPostSignUp } from "../../Types/authentication.types";
-// import { position } from "@chakra-ui/react";
+import { jwtDecode } from "jwt-decode";
+// import { useCookies } from "react-cookie";
+
 
 export const useSignUpAccount = () => {
     //const [cookies, setCookie] = useCookies(['accessToken']);
@@ -15,11 +17,14 @@ export const useSignUpAccount = () => {
 
         onSuccess: (data) => {
             toast.success("Logged in successfully ", { position: "top-right" })
-            const authenticationToken = data.data["auth-token"];
+            // console.log("Logging dataaaaaaaaa---------->",data.data["token"])
+            // const authenticationToken = data.data["token"];
             // storage.setToken(authenticationToken);
         },
 
         onError: (error: AxiosError) => {
+            // console.log("Logging dataaaaaaaaa---------->",data.data["token"])
+            // console.log("My errorrrrrr--->>>>>>>>>>>>>>>>>>>>>>>> ",error)
             const err = (error.response?.data as { error_msg: string })?.error_msg;
             toast.error(`${err}`, { position: "top-right" });
         }
@@ -32,7 +37,7 @@ export const useSignUpAccount = () => {
 }
 
 export const useSignInAccount = () => {
-    //const [cookies, setCookie] = useCookies(['accessToken']);
+    // const [cookies, setCookie] = useCookies(['tukk']);
     const { mutate, isError, isPending } = useMutation({
         mutationKey: ['signInAccount'],
 
@@ -41,11 +46,17 @@ export const useSignInAccount = () => {
         }),
 
         onSuccess: (data) => {
-            console.log(data)
-            // const authToken = data.data["auth-token"];
+            // console.log(data)
+            const authToken = data.data["token"];
+            console.log(authToken)
+            // setCookie('tukk', authToken)
+            // console.log("decodeeeeeeeeee---->", authToken)
+            // const naav: any = jwtDecode(authToken);
+            // const naav1: string = naav["Role"]
+            // console.log("Heluuuu-----------> ", naav1)
             // console.log(authToken)
 
-            const authenticationToken = data.data["auth-token"];
+            // const authenticationToken = data.data["auth-token"];
             // storage.setToken(authenticationToken);
 
             //localStorage.setItem("authenticationToken", authToken);
@@ -56,6 +67,7 @@ export const useSignInAccount = () => {
         // console.log("Response Headers:", data.data["auth-token"]);
 
         onError: (error: AxiosError) => {
+            // console.log("error ----------------------", error)
             const err = (error.response?.data as { error_msg: string })?.error_msg;
             toast.error(`${err}`, { position: "top-right" });
         }

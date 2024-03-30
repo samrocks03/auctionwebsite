@@ -1,47 +1,37 @@
-import { useQuery } from "@tanstack/react-query";
-import { ARTWORKS_API } from "../../ENDPOINTS";
-import axios from "axios";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { ARTWORKS_API, POST_ARTWORKS_API } from "../../ENDPOINTS";
+import axios, { AxiosError } from "axios";
+import { toast } from "react-toastify";
+import { ICreateArtwork } from "../../Types/authentication.types";
 
 export const useGetArtworks = () => {
-    // const { isLoading, error, data } = useQuery({
-    // queryKey: ['artworks', localStorage.getItem("authenticationToken")],
-
-    //     queryFn: () => {
-    //         // const authenticationToken = localStorage.getItem("authenticationToken");
-    //         // const authToken = authenticationToken ? authenticationToken[0] : null;
-    //         axios.get(ARTWORKS_API).then(res => console.log(res));
-    //     }
-
-    // })
-
-    // return {
-    //     artWorksData: data,
-    //     isArtWorkLoading: isLoading,
-    //     isArtWorkError: error
-    // }
-
-    // const authToken = localStorage.getItem("authenticationToken"); // Retrieve authentication token from localStorage
-    // const tokenStr = localStorage.getItem('authenticationToken');
-    
-    // console.log("Aaple cookies-------->",document.cookie.toString());
     const { isLoading, error, data } = useQuery({
         queryKey: ['artworks'],
         queryFn: () => axios.get(ARTWORKS_API, { withCredentials: true })
-        // queryFn: () => axios.get(ARTWORKS_API, { withCredentials: true })
-        // queryFn: async () => {
-        //     try {
-        //         const res = await fetch(`${ ARTWORKS_API }`, {
-        //             credentials: "include",
-        //         })
-        //         const res2 = await res.json();
-        //         console.log("this is our get result: ", res2);
-        //     } catch (error) {
-        //         console.log('Fetch Error: ', error)
-        //     }
     })
     return {
         artWorksData: data,
         isArtWorkLoading: isLoading,
         isArtWorkError: error
     };
+}
+
+export const usePostArtworks = () => {
+    const { mutate, isError, isPending } = useMutation({
+        mutationKey: ['postArtworks'],
+        mutationFn: (payload: ICreateArtwork) => axios.post(POST_ARTWORKS_API, payload, { withCredentials: true }),
+        onSuccess: (data) => {
+            console.log(data)
+        },
+        onError: (error: AxiosError) => {
+            const err = (error.response?.data as { error_msg: string })?.error_msg;
+            toast.error(`${err}`, { position: "top-right" });
+        }
+    });
+
+    return {
+        postArtworksMutation: mutate,
+        isPostArtworksError: isError,
+        isPostArtworksPending: isPending
+    }
 }

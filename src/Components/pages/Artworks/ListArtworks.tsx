@@ -21,9 +21,9 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Artwork } from "../../../Types/types";
+
 import { useGetArtworks } from "../../Hooks/newArtwork.hooks";
-// import { Artwork } from "../../../types"; // Adjust the import path according to your project
-// import {Artwork} from
+
 interface Props {
   artworkData: Artwork[];
 }
@@ -34,8 +34,7 @@ const ListArtworks = ({ artworkData }: Props) => {
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const cancelRef = useRef<HTMLButtonElement | null>(null);
 
-  // const { artWorksData } = useGetArtworks();
-  // console.log("12345678---->", artWorksData);
+  const { artWorksData, isArtWorkLoading, isArtWorkError } = useGetArtworks();
 
   const openAlertDialog = (artwork: Artwork) => {
     setSelectedArtwork(artwork);
@@ -69,96 +68,98 @@ const ListArtworks = ({ artworkData }: Props) => {
   };
 
   return (
-    <VStack spacing={6} alignItems="stretch">
-      <Box bg="gray.100" py="8">
-        <SimpleGrid
-          spacing={8}
-          columns={{ sm: 2, md: 2, lg: 3 }}
-          gap="4"
-          my="auto"
-          mx="auto"
-          maxW="container.lg"
-        >
-          {artworkData.map((artwork) => (
-            <Card
-              key={artwork.Id}
-              bg="white"
-              boxShadow="md"
-              borderWidth="1px"
-              borderRadius="lg"
-              overflow="hidden"
-              transition="transform 0.3s"
-              _hover={{ transform: "scale(1.05)" }}
-            >
-              <Image
-                height="200"
-                width="400"
-                src={artwork.Image}
-                alt={artwork.Name}
-              />
-              <CardBody bg="gray.200" p="4">
-                <CardHeader>
-                  <Heading size="md" mb="2">
-                    {artwork.Name}
-                  </Heading>
-                </CardHeader>
-                <Text mb="2">{artwork.Description}</Text>
-                <Text mb="2">Category: {artwork.Category}</Text>
-                <Text mb="2">Starting Price: ${artwork.Starting_price}</Text>
-                <Text mb="2">Highest Bid: ${artwork.Highest_bid}</Text>
-              </CardBody>
-              <CardFooter
-                bg="gray"
-                p="4"
-                display="flex"
-                justifyContent="flex-end"
+    artWorksData?.data && (
+      <VStack spacing={6} alignItems="stretch">
+        <Box bg="gray.100" py="8">
+          <SimpleGrid
+            spacing={8}
+            columns={{ sm: 2, md: 2, lg: 3 }}
+            gap="4"
+            my="auto"
+            mx="auto"
+            maxW="container.lg"
+          >
+            {artWorksData?.data.map((artwork: Artwork) => (
+              <Card
+                key={artwork.Id}
+                bg="white"
+                boxShadow="md"
+                borderWidth="1px"
+                borderRadius="lg"
+                overflow="hidden"
+                transition="transform 0.3s"
+                _hover={{ transform: "scale(1.05)" }}
               >
-                <Button
-                  colorScheme="blue"
-                  borderRadius="md"
-                  _hover={{ bg: "#000000" }}
-                  onClick={() => openAlertDialog(artwork)}
+                <Image
+                  height="200"
+                  width="400"
+                  src={artwork.Image}
+                  alt={artwork.Name}
+                />
+                <CardBody bg="gray.200" p="4">
+                  <CardHeader>
+                    <Heading size="md" mb="2">
+                      {artwork.Name}
+                    </Heading>
+                  </CardHeader>
+                  <Text mb="2">{artwork.Description}</Text>
+                  <Text mb="2">Category: {artwork.Category}</Text>
+                  <Text mb="2">Starting Price: ${artwork.Starting_price}</Text>
+                  <Text mb="2">Highest Bid: ${artwork.Highest_bid}</Text>
+                </CardBody>
+                <CardFooter
+                  bg="gray"
+                  p="4"
+                  display="flex"
+                  justifyContent="flex-end"
                 >
-                  Place Bid
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </SimpleGrid>
+                  <Button
+                    colorScheme="blue"
+                    borderRadius="md"
+                    _hover={{ bg: "#000000" }}
+                    onClick={() => openAlertDialog(artwork)}
+                  >
+                    Place Bid
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </SimpleGrid>
 
-        {/* AlertDialog */}
-        <AlertDialog
-          isOpen={isAlertDialogOpen}
-          leastDestructiveRef={cancelRef}
-          onClose={closeAlertDialog}
-        >
-          <AlertDialogOverlay />
-          <AlertDialogContent>
-            <AlertDialogHeader>Place Bid</AlertDialogHeader>
-            <AlertDialogCloseButton />
-            <AlertDialogBody>
-              <Text mb="4">
-                Enter bid higher than ${selectedArtwork?.Highest_bid}
-              </Text>
-              <Input
-                type="number"
-                value={bidValue || ""}
-                onChange={handleBidInputChange}
-                placeholder={`Enter bid higher than ${selectedArtwork?.Highest_bid}`}
-              />
-            </AlertDialogBody>
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={closeAlertDialog}>
-                Cancel
-              </Button>
-              <Button colorScheme="blue" ml={3} onClick={handleConfirmBid}>
-                Confirm Bid
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </Box>
-    </VStack>
+          {/* AlertDialog */}
+          <AlertDialog
+            isOpen={isAlertDialogOpen}
+            leastDestructiveRef={cancelRef}
+            onClose={closeAlertDialog}
+          >
+            <AlertDialogOverlay />
+            <AlertDialogContent>
+              <AlertDialogHeader>Place Bid</AlertDialogHeader>
+              <AlertDialogCloseButton />
+              <AlertDialogBody>
+                <Text mb="4">
+                  Enter bid higher than ${selectedArtwork?.Highest_bid}
+                </Text>
+                <Input
+                  type="number"
+                  value={bidValue || ""}
+                  onChange={handleBidInputChange}
+                  placeholder={`Enter bid higher than ${selectedArtwork?.Highest_bid}`}
+                />
+              </AlertDialogBody>
+              <AlertDialogFooter>
+                <Button ref={cancelRef} onClick={closeAlertDialog}>
+                  Cancel
+                </Button>
+                <Button colorScheme="blue" ml={3} onClick={handleConfirmBid}>
+                  Confirm Bid
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </Box>
+      </VStack>
+    )
   );
 };
 

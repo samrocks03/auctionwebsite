@@ -36,12 +36,31 @@ export const signUpSchema = Yup.object().shape({
 
 
 export const createArtWorkSchema = Yup.object().shape({
-  name: Yup.string().required('Name is required'),
+  name: Yup.string()
+    .required('Name is required')
+    .min(2, 'Name must be at least 2 characters long'),
+  // .matches(/^[A-Z][a-zA-Z] [a-zA-Z]*$/, 'Name must start with a capital letter')
+
+
   category: Yup.string().required('Category is required'),
+
+
   description: Yup.string().required('Description is required'),
-  imageUrl: Yup.string().required('Image URL is required'),
+
+
+  imageUrl: Yup.string().required('Image URL is required')
+    .required('Image URL is required')
+    .url('Invalid URL format')
+    .matches(/\.(jpeg|jpg|gif|png)$/i, 'Invalid image file extension')
+    .max(255, 'URL is too long'),
+
   amount: Yup.number()
     .typeError('Amount must be a number')
     .required('Amount is required')
     .positive('Amount must be positive'),
+
+  duration: Yup.number()
+    .min(2, "2 days min is required")
+    .required("Duration is required"), 
+    
 })
