@@ -22,7 +22,11 @@ import {
 } from "@chakra-ui/react";
 import { Artwork } from "../../../Types/types";
 
-import { useDeleteArtwork, useGetArtworks } from "../../Hooks/artwork.hooks";
+import {
+  useDeleteArtwork,
+  useGetArtworks,
+  usePostBid,
+} from "../../Hooks/artwork.hooks";
 import { SpinnerBro } from "../../Spinner";
 import ArtworkFilterBar from "./ArtworkFilterBar";
 
@@ -39,6 +43,7 @@ const ListArtworks = ({ artworkData }: Props) => {
 
   const { artWorksData, isArtWorkLoading, refetchArtworks } = useGetArtworks();
   const { deleteArtwork, isdeleteSuccess } = useDeleteArtwork();
+  const { postBidMutation, isPostBidPending, isPostBidSuccess } = usePostBid();
 
   useEffect(() => {
     // Fetch artworks data when the component mounts
@@ -65,10 +70,25 @@ const ListArtworks = ({ artworkData }: Props) => {
   const handleConfirmBid = () => {
     if (bidValue && selectedArtwork) {
       if (bidValue > selectedArtwork.Highest_bid) {
-        // Implement logic to handle bid submission
-        alert(
-          `Bid of $${bidValue} placed successfully for ${selectedArtwork.Name}.`
-        );
+        if (!isPostBidPending) {
+          postBidMutation(
+            {
+              artwork_id: selectedArtwork.Id,
+              amount: bidValue,
+            },
+            {
+              onSuccess: ()=>{
+                refetchArtworks();
+              },
+              onError: (error) => {
+                console.log(error);
+              },
+            }
+          );
+        }
+        // alert(
+        //   `Bid of $${bidValue} placed successfully for ${selectedArtwork.Name}.`
+        // );
         closeAlertDialog();
       } else {
         alert(`Bid must be greater than ${selectedArtwork.Highest_bid}`);
@@ -207,7 +227,6 @@ const ListArtworks = ({ artworkData }: Props) => {
             ))}
           </SimpleGrid>
 
-          {/* AlertDialog */}
           <AlertDialog
             isOpen={isAlertDialogOpen}
             leastDestructiveRef={cancelRef}
@@ -232,6 +251,7 @@ const ListArtworks = ({ artworkData }: Props) => {
                 <Button ref={cancelRef} onClick={closeAlertDialog}>
                   Cancel
                 </Button>
+
                 <Button colorScheme="blue" ml={3} onClick={handleConfirmBid}>
                   Confirm Bid
                 </Button>

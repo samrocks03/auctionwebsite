@@ -61,7 +61,7 @@ export const usePostArtworks = () => {
 
 export const usePostBid = () => {
     const toast = useToast();
-    const { mutate, isError, isPending } = useMutation({
+    const { mutate, isError, isPending, isSuccess } = useMutation({
         mutationKey: ['postBid'],
         mutationFn: (payload: IBid) => axios.post(POST_BID_API, payload, { withCredentials: true }),
         onSuccess: (data) => {
@@ -89,7 +89,8 @@ export const usePostBid = () => {
     return {
         postBidMutation: mutate,
         isPostBidError: isError,
-        isPostBidPending: isPending
+        isPostBidPending: isPending,
+        isPostBidSuccess: isSuccess
     }
 }
 

@@ -257,7 +257,7 @@ const CreateArtworkForm = () => {
               type="submit"
               colorScheme="blue"
               // isLoading={formik.isSubmitting}
-              onSubmit={handleOpenConfirmation}
+              onClick={handleOpenConfirmation}
               loadingText="Creating..."
               borderRadius="md"
               boxShadow="md"
