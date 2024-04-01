@@ -1,30 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import { ARTWORKS_API, SIGNUP_API, LOGIN_API } from "../../ENDPOINTS";
+import { ARTWORKS_API, SIGNUP_API, LOGIN_API, LOGOUT_API } from "../../ENDPOINTS";
 import { toast } from "react-toastify";
 import { IPostLogin, IPostSignUp } from "../../Types/authentication.types";
-import { jwtDecode } from "jwt-decode";
-// import { useCookies } from "react-cookie";
+import { useToast } from "@chakra-ui/react";
 
 
 export const useSignUpAccount = () => {
-    //const [cookies, setCookie] = useCookies(['accessToken']);
     const { mutate, isError, isPending } = useMutation({
         mutationKey: ['signUpAccount'],
         mutationFn: (payload: IPostSignUp) => axios.post(SIGNUP_API, payload, { withCredentials: true }),
-
         onSuccess: (data) => {
-            toast.success("Logged in successfully ", { position: "top-right" })
-            // console.log("Logging dataaaaaaaaa---------->",data.data["token"])
-            // const authenticationToken = data.data["token"];
-            // storage.setToken(authenticationToken);
+            console.log(data)
         },
-
         onError: (error: AxiosError) => {
-            // console.log("Logging dataaaaaaaaa---------->",data.data["token"])
-            // console.log("My errorrrrrr--->>>>>>>>>>>>>>>>>>>>>>>> ",error)
             const err = (error.response?.data as { error_msg: string })?.error_msg;
             toast.error(`${err}`, { position: "top-right" });
         }
@@ -37,37 +28,21 @@ export const useSignUpAccount = () => {
 }
 
 export const useSignInAccount = () => {
-    // const [cookies, setCookie] = useCookies(['tukk']);
     const { mutate, isError, isPending } = useMutation({
         mutationKey: ['signInAccount'],
-
         mutationFn: (payload: IPostLogin) => axios.post(LOGIN_API, payload, {
             withCredentials: true, // Enable sending credentials (like cookies) with the request
         }),
-
         onSuccess: (data) => {
-            // console.log(data)
-            const authToken = data.data["token"];
-            console.log(authToken)
-            // setCookie('tukk', authToken)
-            // console.log("decodeeeeeeeeee---->", authToken)
-            // const naav: any = jwtDecode(authToken);
-            // const naav1: string = naav["Role"]
-            // console.log("Heluuuu-----------> ", naav1)
-            // console.log(authToken)
+            const { role, token, userId } = data.data;
+            localStorage.setItem('userRole', role);
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('token', token);
+            console.log("User role stored in localStorage:", role, userId);
 
-            // const authenticationToken = data.data["auth-token"];
-            // storage.setToken(authenticationToken);
-
-            //localStorage.setItem("authenticationToken", authToken);
-            //setCookie('accessToken', authToken);
-            // setCookie('accessToken', authenticationToken);
-            // console.log("heluuu ---- ", authenticationToken)
+            console.log("data-->", data.data);
         },
-        // console.log("Response Headers:", data.data["auth-token"]);
-
         onError: (error: AxiosError) => {
-            // console.log("error ----------------------", error)
             const err = (error.response?.data as { error_msg: string })?.error_msg;
             toast.error(`${err}`, { position: "top-right" });
         }
@@ -76,5 +51,41 @@ export const useSignInAccount = () => {
         signInMutation: mutate,
         isSignInError: isError,
         isSignInPending: isPending
+    }
+}
+
+export const useLogOutHook = () => {
+    const toast = useToast();
+    const { mutate, isError, isPending, isSuccess } = useMutation({
+        mutationKey: ['signOutAccount'],
+        mutationFn: () => axios.post(LOGOUT_API, {}, { withCredentials: true }),
+        onSuccess: () => {
+            console.log("User role removed from localStorage:", localStorage.getItem('userRole'));
+            console.log("User id removed from localStorage:", localStorage.getItem('userId'));
+            console.log("Token removed from localStorage:", localStorage.getItem('token'));
+
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('token');
+
+        },
+        onError: (error: AxiosError) => {
+            const err = (error.response?.data as { error_msg: string })?.error_msg;
+            toast({
+                title: "Error!",
+                description: `${err}`,
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
+
+        }
+    });
+
+    return {
+        signOutMutation: mutate,
+        isSignOutError: isError,
+        isSignOutPending: isPending,
+        isSuccess
     }
 }

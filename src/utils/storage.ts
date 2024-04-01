@@ -1,22 +1,20 @@
-export const bro2 = "India";
-// // const storagePrefix = '';
+// const storagePrefix = '';
 
+const storage = {
+    getToken: () => {
+        return window.localStorage.getItem(`token`)
+    },
+    // setToken: (token: string) => {
+    //     window.localStorage.setItem(`token`, JSON.stringify(token));
+    // },
+    clearToken: () => {
+        window.localStorage.removeItem(`token`);
+    },
+    authStatus: () => {
+        const abc = window.localStorage.getItem(`token`)
+        console.log("abc-->", abc);
+        return abc ? true : false
+    }
+};
 
-// const storage = {
-//     getToken: () => {
-//         return JSON.parse(window.localStorage.getItem(`authenticationToken`) as string);
-//     },
-//     setToken: (token: string) => {
-//         window.localStorage.setItem(`authenticationToken`, JSON.stringify(token));
-//     },
-//     clearToken: () => {
-//         window.localStorage.removeItem(`authenticationToken`);
-//     },
-//     authStatus: () => {
-//         const abc = JSON.parse(window.localStorage.getItem(`authenticationToken`) as string);
-//         console.log("abc-->", abc);
-//         return abc ? true : false
-//     }
-// };
-
-// export default storage; 
+export default storage; 

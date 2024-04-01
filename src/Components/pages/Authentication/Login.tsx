@@ -5,7 +5,6 @@ import AuthForm from "./AuthForm";
 import { useSignInAccount } from "../../Hooks/authentication.hooks";
 import { IPostLogin } from "../../../Types/authentication.types";
 import { ToastContainer } from "react-toastify";
-import { Spinner } from "@chakra-ui/react";
 
 const initialValues = {
   email: "svkulkarni23@gmail.com",
@@ -13,12 +12,10 @@ const initialValues = {
 };
 
 const Login = () => {
-  const authToken = localStorage.getItem("authorizationToken");
   const { signInMutation, isSignInPending } = useSignInAccount();
   const navigate = useNavigate();
 
   const handleLogin = (values: any) => {
-
     const payload: IPostLogin = {
       email: values.email,
       password: values.password,
@@ -27,6 +24,7 @@ const Login = () => {
     if (!isSignInPending) {
       signInMutation(payload, {
         onSuccess: () => {
+          console.log("I'm loginnnnnnnnnnn")
           navigate("/list-artworks");
         },
         onError: (error) => {

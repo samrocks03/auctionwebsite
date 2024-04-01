@@ -22,15 +22,15 @@ import {
 import { createArtWorkSchema } from "../../YupSchema/yup.schema";
 import { useRef, useState } from "react";
 import { Category, ICreateArtwork } from "../../../Types/authentication.types";
-import { usePostArtworks } from "../../Hooks/newArtwork.hooks";
+import { usePostArtworks } from "../../Hooks/artwork.hooks";
 
 const initialValues: ICreateArtwork = {
   name: "",
-  category: Category.Pencil_Art,
+  category: Category.Canvas_Painting,
   description: "",
   image: "",
   starting_price: 1,
-  duration: 2,
+  duration: 1,
 };
 
 const CreateArtworkForm = () => {
@@ -257,7 +257,7 @@ const CreateArtworkForm = () => {
               type="submit"
               colorScheme="blue"
               // isLoading={formik.isSubmitting}
-              onClick={handleOpenConfirmation}
+              onSubmit={handleOpenConfirmation}
               loadingText="Creating..."
               borderRadius="md"
               boxShadow="md"

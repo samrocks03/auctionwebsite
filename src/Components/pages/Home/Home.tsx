@@ -12,39 +12,47 @@ import {
   Box,
   Flex,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
-import { useRef } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { HamburgerIcon } from "@chakra-ui/icons";
+import { useLogOutHook } from "../../Hooks/authentication.hooks";
 
-const Home = ({ isAdmin }: { isAdmin: boolean }) => {
-  // const [isListArtworksOpen, setIsListArtworksOpen] = useState(false); // State to track whether List Artworks is open
-
+const Home = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement | null>(null);
+  const role = localStorage.getItem("userRole");
+  const navigate = useNavigate();
+  // console.log("Im in home oooooooooooooo");
 
-  const drawerOptions = isAdmin
-    ? [
-        { name: "View All Users", path: "/users" },
-        { name: "Create Artwork", path: "/create-artwork" },
-        { name: "List Artworks", path: "/list-artworks" },
-      ]
+  const drawerOptions = role
+    ? role === "admin"
+      ? [
+          { name: "View All Users", path: "/users" },
+          { name: "Create Artwork", path: "/create-artworks" },
+          { name: "List Artworks", path: "/list-artworks" },
+        ]
+      : [
+          { name: "Create Artwork", path: "/create-artworks" },
+          { name: "List Artworks", path: "/list-artworks" },
+        ]
     : [
-        { name: "Create Artwork", path: "/create-artwork" },
-        { name: "List Artworks", path: "/list-artworks" }, // Add List Artworks option
+        { name: "Log In", path: "/login" },
+        { name: "Register", path: "/signup" },
       ];
 
-  // const toggleListArtworks = () => {
-  //   setIsListArtworksOpen(!isListArtworksOpen);
-  // };
+  const { signOutMutation, isSuccess } = useLogOutHook();
+
+  useEffect(() => {
+    if (isSuccess) {
+      console.log("I'm in success of logout");
+      navigate("/login");
+    }
+  }, [isSuccess, navigate]);
 
   return (
     <>
       <Box h={"auto"} style={{ display: "flex" }}>
-        <Flex
-          justifyContent="flex-end"
-          alignItems="center"
-          
-        >
+        <Flex justifyContent="flex-end" alignItems="center">
           <Button ref={btnRef} colorScheme="teal" onClick={onOpen}>
             <HamburgerIcon />
           </Button>
@@ -67,6 +75,7 @@ const Home = ({ isAdmin }: { isAdmin: boolean }) => {
                       as={Link}
                       to={option.path}
                       variant="link"
+                      // hidden={true}
                       w="100%"
                       textAlign="left"
                     >
@@ -77,13 +86,25 @@ const Home = ({ isAdmin }: { isAdmin: boolean }) => {
               </ul>
             </DrawerBody>
 
-            <DrawerFooter></DrawerFooter>
+            <DrawerFooter>
+              <Button
+                as={Link}
+                variant="link"
+                onClick={() => {
+                  signOutMutation();
+                }}
+                w="100%"
+                textAlign="left"
+              >
+                Logout
+              </Button>
+            </DrawerFooter>
           </DrawerContent>
         </Drawer>
-
-        {/* Render List Artworks component conditionally */}
-        {/* {isListArtworksOpen && <ListArtworks />} */}
+        {/* <div ref={pageRef}> */}
+        {/* </div> */}
       </Box>
+      <Outlet />
     </>
   );
 };

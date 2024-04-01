@@ -12,7 +12,8 @@ import ListArtworks from "./Components/pages/Artworks/ListArtworks";
 import { artworkData } from "./constants";
 import { Artwork } from "./Types/types";
 import Users from "./Components/pages/Users/Users";
-// import Protected from "./Components/Provider/AuthLayout";
+import Protected from "./Protected";
+// import Protected from "./protected"; // Import the Protected component
 const queryClient = new QueryClient();
 
 export const App = () => (
@@ -20,34 +21,51 @@ export const App = () => (
     <QueryClientProvider client={queryClient}>
       <ChakraProvider theme={theme}>
         <Router>
-          <Home isAdmin={true} />
           <Routes>
-            {/* <Route
-            path="/users"
-            element={
-              <Protected authentication={true}>
-              <Users />
-              </Protected>
-            }
-          /> */}
-            <Route path="/users" element={<Users />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/create-artwork" element={<CreateArtworkForm />} />
-            <Route path="/" element={<div></div>} />
-            <Route
-              path="/list-artworks"
-              element={
-                <ListArtworks
-                  artworkData={artworkData as unknown as Artwork[]}
-                />
-              }
-            />
 
-            {/* <Route path="/list-artworks" element={<ListArtworks />} /> */}
+            {/* Use Protected component for routes that require authentication */}
+            <Route
+              path="/"
+              element={
+                <Protected>
+                  <Home />
+                </Protected>
+              }
+            >
+              <Route
+                path="/users"
+                element={
+                  <Protected>
+                    <Users />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/create-artworks"
+                element={
+                  <Protected>
+                    <CreateArtworkForm />
+                  </Protected>
+                }
+              />
+              <Route
+                path="/list-artworks"
+                element={
+                  <Protected>
+                    <ListArtworks
+                      artworkData={artworkData as unknown as Artwork[]}
+                    />
+                  </Protected>
+                }
+              />
+            </Route>
           </Routes>
         </Router>
       </ChakraProvider>
     </QueryClientProvider>
   </div>
 );
+
+export default App;

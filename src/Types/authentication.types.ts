@@ -19,7 +19,6 @@ export interface IPostLogin {
     password: string;
 }
 
-
 export interface IPostSignUp {
     email: string;
     password: string;
@@ -34,4 +33,9 @@ export interface ICreateArtwork {
     image: string,
     starting_price: number,
     duration: number
+}
+
+export interface IBid{
+    artwork_id: string,
+    amount: number,
 }

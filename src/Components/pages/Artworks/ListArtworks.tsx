@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   SimpleGrid,
   Heading,
@@ -22,7 +22,9 @@ import {
 } from "@chakra-ui/react";
 import { Artwork } from "../../../Types/types";
 
-import { useGetArtworks } from "../../Hooks/newArtwork.hooks";
+import { useDeleteArtwork, useGetArtworks } from "../../Hooks/artwork.hooks";
+import { SpinnerBro } from "../../Spinner";
+import ArtworkFilterBar from "./ArtworkFilterBar";
 
 interface Props {
   artworkData: Artwork[];
@@ -33,8 +35,15 @@ const ListArtworks = ({ artworkData }: Props) => {
   const [bidValue, setBidValue] = useState<number | null>(null);
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const cancelRef = useRef<HTMLButtonElement | null>(null);
+  const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([]);
 
-  const { artWorksData, isArtWorkLoading, isArtWorkError } = useGetArtworks();
+  const { artWorksData, isArtWorkLoading, refetchArtworks } = useGetArtworks();
+  const { deleteArtwork, isdeleteSuccess } = useDeleteArtwork();
+
+  useEffect(() => {
+    // Fetch artworks data when the component mounts
+    refetchArtworks();
+  }, [refetchArtworks]);
 
   const openAlertDialog = (artwork: Artwork) => {
     setSelectedArtwork(artwork);
@@ -67,10 +76,67 @@ const ListArtworks = ({ artworkData }: Props) => {
     }
   };
 
+  const userId = localStorage.getItem("userId");
+
+  const handleSearch = (searchTerm: string) => {
+    const filtered = artWorksData?.data.filter((artwork: Artwork) =>
+      artwork.Name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredArtworks(filtered);
+    // Trigger refetch after search
+    refetchArtworks();
+  };
+
+  useEffect(() => {
+    artWorksData?.data && setFilteredArtworks(artWorksData?.data);
+  }, [artWorksData?.data]);
+
+  const handleSort = (sortOption: string) => {
+    const sorted = [...filteredArtworks].sort((a, b) => {
+      if (sortOption === "starting_price") {
+        return a.Starting_price - b.Starting_price;
+      } else if (sortOption === "highest_bid") {
+        return a.Highest_bid - b.Highest_bid;
+      }
+      return 0; // Add a default return value to handle other cases
+    });
+    setFilteredArtworks(sorted);
+    // Trigger refetch after sort
+    refetchArtworks();
+  };
+
+  const handleFilter = (category: string) => {
+    if (category === "") {
+      setFilteredArtworks(artWorksData?.data);
+    } else {
+      const filtered = artWorksData?.data.filter(
+        (artwork: Artwork) => artwork.Category === category
+      );
+      setFilteredArtworks(filtered);
+    }
+    // Trigger refetch after filter
+    refetchArtworks();
+  };
+
+  useEffect(() => {
+    if (isdeleteSuccess) {
+      refetchArtworks();
+    }
+  }, [isdeleteSuccess, refetchArtworks]);
+
+  if (isArtWorkLoading) {
+    return <SpinnerBro />;
+  }
   return (
     artWorksData?.data && (
       <VStack spacing={6} alignItems="stretch">
         <Box bg="gray.100" py="8">
+          <ArtworkFilterBar
+            onSearch={handleSearch}
+            onSort={handleSort}
+            onFilter={handleFilter}
+          />
+
           <SimpleGrid
             spacing={8}
             columns={{ sm: 2, md: 2, lg: 3 }}
@@ -79,7 +145,7 @@ const ListArtworks = ({ artworkData }: Props) => {
             mx="auto"
             maxW="container.lg"
           >
-            {artWorksData?.data.map((artwork: Artwork) => (
+            {filteredArtworks.map((artwork: Artwork) => (
               <Card
                 key={artwork.Id}
                 bg="white"
@@ -113,14 +179,29 @@ const ListArtworks = ({ artworkData }: Props) => {
                   display="flex"
                   justifyContent="flex-end"
                 >
-                  <Button
-                    colorScheme="blue"
-                    borderRadius="md"
-                    _hover={{ bg: "#000000" }}
-                    onClick={() => openAlertDialog(artwork)}
-                  >
-                    Place Bid
-                  </Button>
+                  {userId !== artwork.Owner_id && (
+                    <Button
+                      colorScheme="blue"
+                      borderRadius="md"
+                      _hover={{ bg: "#000000" }}
+                      onClick={() => openAlertDialog(artwork)}
+                    >
+                      Place Bid
+                    </Button>
+                  )}
+
+                  {userId === artwork.Owner_id && (
+                    <Button
+                      colorScheme="red"
+                      borderRadius="md"
+                      // _hover={}
+                      onClick={() => {
+                        deleteArtwork(artwork.Id);
+                      }}
+                    >
+                      Delete Artwork
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             ))}
