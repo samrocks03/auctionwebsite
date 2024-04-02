@@ -76,17 +76,24 @@ const reducer = (state: any, action: Action) => {
 };
 
 const ListArtworks = ({ artworkData }: Props) => {
-  
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { selectedArtwork, bidValue, isAlertDialogOpen, isDeleteDialogOpen, filteredArtworks } = state;
-  
-  const { artWorksData, isArtWorkLoading, refetchArtworks } = useGetArtworks();
+  const {
+    selectedArtwork,
+    bidValue,
+    isAlertDialogOpen,
+    isDeleteDialogOpen,
+    filteredArtworks,
+  } = state;
+
+  const { artWorksData, isArtWorkLoading, refetchArtworks } = useGetArtworks(
+    0,
+    10
+  );
   const { deleteArtwork, isdeleteSuccess } = useDeleteArtwork();
   const { postBidMutation, isPostBidPending } = usePostBid();
-  
+
   const cancelRef = useRef<HTMLButtonElement | null>(null);
   const userId = localStorage.getItem("userId");
-  
 
   useEffect(() => {
     // Fetch artworks data when the component mounts
@@ -95,7 +102,10 @@ const ListArtworks = ({ artworkData }: Props) => {
 
   const openAlertDialog = (artwork: Artwork) => {
     dispatch({ type: ActionType.SET_SELECTED_ARTWORK, payload: artwork });
-    dispatch({ type: ActionType.SET_BID_VALUE, payload: artwork.Highest_bid + 500 });
+    dispatch({
+      type: ActionType.SET_BID_VALUE,
+      payload: artwork.Highest_bid + 500,
+    });
     dispatch({ type: ActionType.TOGGLE_ALERT_DIALOG, payload: true });
   };
 
@@ -163,7 +173,11 @@ const ListArtworks = ({ artworkData }: Props) => {
   };
 
   useEffect(() => {
-    artWorksData?.data && dispatch({ type: ActionType.SET_FILTERED_ARTWORKS, payload: artWorksData.data });
+    artWorksData?.data &&
+      dispatch({
+        type: ActionType.SET_FILTERED_ARTWORKS,
+        payload: artWorksData.data,
+      });
   }, [artWorksData?.data]);
 
   const handleSort = (sortOption: string) => {
@@ -182,7 +196,10 @@ const ListArtworks = ({ artworkData }: Props) => {
 
   const handleFilter = (category: string) => {
     if (category === "") {
-      dispatch({ type: ActionType.SET_FILTERED_ARTWORKS, payload: artWorksData?.data });
+      dispatch({
+        type: ActionType.SET_FILTERED_ARTWORKS,
+        payload: artWorksData?.data,
+      });
     } else {
       const filtered = artWorksData?.data.filter(
         (artwork: Artwork) => artwork.Category === category

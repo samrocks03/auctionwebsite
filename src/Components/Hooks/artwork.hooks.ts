@@ -1,21 +1,38 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { ARTWORKS_API, DELETE_BID_API, POST_ARTWORKS_API, POST_BID_API } from "../../ENDPOINTS";
+import { ARTWORKS_API, DELETE_BID_API, FILTER_API, POST_ARTWORKS_API, POST_BID_API } from "../../ENDPOINTS";
 import axios, { AxiosError } from "axios";
 import { IBid, ICreateArtwork } from "../../Types/authentication.types";
 import { useToast } from "@chakra-ui/react";
 
-export const useGetArtworks = () => {
+export const useGetArtworks = (start: number, count: number) => {
     const { isLoading, error, data, refetch } = useQuery({
-        queryKey: ['artworks'],
-        queryFn: () => axios.get(ARTWORKS_API, { withCredentials: true }),
-    })
+        queryKey: ['artworks', start, count],
+        queryFn: () => axios.get(`${ARTWORKS_API}?start=${start}&count=${count}`, { withCredentials: true }),
+    });
     return {
         artWorksData: data,
         isArtWorkLoading: isLoading,
         isArtWorkError: error,
         refetchArtworks: refetch
     };
-}
+};
+
+
+export const useFilterPagination = (start: number, count: number, category: string) => {
+    const { isLoading, error, data, refetch } = useQuery({
+        queryKey: ['pagination', FILTER_API, start, count, category],
+        queryFn: () => axios.get(`${FILTER_API}?start=${start}&count=${count}&category=${category}`, { withCredentials: true }),
+    });
+    return {
+        paginatedData: data,
+        isPaginatedLoading: isLoading,
+        isPaginatedError: error,
+        refetchPaginatedData: refetch
+    };
+};
+
+
+
 
 export const usePostArtworks = () => {
     const toast = useToast();
