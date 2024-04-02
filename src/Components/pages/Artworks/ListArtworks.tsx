@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useReducer } from "react";
+import React, { useRef, useEffect, useReducer, useState } from "react";
 import {
   SimpleGrid,
   Heading,
@@ -24,10 +24,12 @@ import { Artwork } from "../../../Types/types";
 import { SpinnerBro } from "../../Spinner";
 import ArtworkFilterBar from "./ArtworkFilterBar";
 import {
+  // IParams,
   useDeleteArtwork,
   useGetArtworks,
   usePostBid,
 } from "../../Hooks/artwork.hooks";
+import { Pagination } from "./Pagination";
 
 interface Props {
   artworkData: Artwork[];
@@ -76,6 +78,10 @@ const reducer = (state: any, action: Action) => {
 };
 
 const ListArtworks = ({ artworkData }: Props) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     selectedArtwork,
@@ -85,10 +91,28 @@ const ListArtworks = ({ artworkData }: Props) => {
     filteredArtworks,
   } = state;
 
-  const { artWorksData, isArtWorkLoading, refetchArtworks } = useGetArtworks(
-    0,
-    10
-  );
+  // const gettingPages: IParams = { start: 0, count: 20 };
+  const { artWorksData, totalCount, isArtWorkLoading, refetchArtworks } =
+    useGetArtworks({
+      start:  (currentPage - 1) * pageSize,
+      count: pageSize,
+    });
+
+  useEffect(() => {
+    if (totalCount) {
+      setTotalPages(Math.ceil(totalCount / pageSize));
+    }
+  }, [totalCount, pageSize]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
+
   const { deleteArtwork, isdeleteSuccess } = useDeleteArtwork();
   const { postBidMutation, isPostBidPending } = usePostBid();
 
@@ -100,8 +124,6 @@ const ListArtworks = ({ artworkData }: Props) => {
     // Fetch artworks data when the component mounts
     refetchArtworks();
   }, [refetchArtworks]);
-
-  console.log(artWorksData);
 
   const openAlertDialog = (artwork: Artwork) => {
     dispatch({ type: ActionType.SET_SELECTED_ARTWORK, payload: artwork });
@@ -361,6 +383,14 @@ const ListArtworks = ({ artworkData }: Props) => {
             </AlertDialogContent>
           </AlertDialog>
         </Box>
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+        />
       </VStack>
     )
   );

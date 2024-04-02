@@ -4,13 +4,22 @@ import axios, { AxiosError } from "axios";
 import { IBid, ICreateArtwork } from "../../Types/authentication.types";
 import { useToast } from "@chakra-ui/react";
 
-export const useGetArtworks = (start: number, count: number) => {
+
+export interface IParams {
+    start: number;
+    count: number;
+    category?: string;
+}
+
+export const useGetArtworks = (params: IParams) => {
     const { isLoading, error, data, refetch } = useQuery({
-        queryKey: ['artworks', start, count],
-        queryFn: () => axios.get(`${ARTWORKS_API}?start=${start}&count=${count}`, { withCredentials: true }),
+        queryKey: ['artworks', params],
+        queryFn: () => axios.get(`${ARTWORKS_API}`, { params, withCredentials: true }),
+
     });
     return {
         artWorksData: data?.data,
+        totalCount: data?.data["totalCount"],
         isArtWorkLoading: isLoading,
         isArtWorkError: error,
         refetchArtworks: refetch
@@ -18,18 +27,18 @@ export const useGetArtworks = (start: number, count: number) => {
 };
 
 
-export const useFilterPagination = (start: number, count: number, category: string) => {
-    const { isLoading, error, data, refetch } = useQuery({
-        queryKey: ['pagination', FILTER_API, start, count, category],
-        queryFn: () => axios.get(`${FILTER_API}?start=${start}&count=${count}&category=${category}`, { withCredentials: true }),
-    });
-    return {
-        paginatedData: data,
-        isPaginatedLoading: isLoading,
-        isPaginatedError: error,
-        refetchPaginatedData: refetch
-    };
-};
+// export const useFilterPagination = (params: IParams) => {
+//     const { isLoading, error, data, refetch } = useQuery({
+//         queryKey: ['pagination', params],
+//         queryFn: () => axios.get(`${FILTER_API}`, { params, withCredentials: true }),
+//     });
+//     return {
+//         paginatedData: data,
+//         isPaginatedLoading: isLoading,
+//         isPaginatedError: error,
+//         refetchPaginatedData: refetch
+//     };
+// };
 
 
 
