@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect, useReducer } from "react";
 import {
   SimpleGrid,
   Heading,
@@ -21,30 +21,72 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Artwork } from "../../../Types/types";
-
+import { SpinnerBro } from "../../Spinner";
+import ArtworkFilterBar from "./ArtworkFilterBar";
 import {
   useDeleteArtwork,
   useGetArtworks,
   usePostBid,
 } from "../../Hooks/artwork.hooks";
-import { SpinnerBro } from "../../Spinner";
-import ArtworkFilterBar from "./ArtworkFilterBar";
 
 interface Props {
   artworkData: Artwork[];
 }
 
-const ListArtworks = ({ artworkData }: Props) => {
-  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
-  const [bidValue, setBidValue] = useState<number | null>(null);
-  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const cancelRef = useRef<HTMLButtonElement | null>(null);
-  const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([]);
+// Define action types
+enum ActionType {
+  SET_SELECTED_ARTWORK,
+  SET_BID_VALUE,
+  TOGGLE_ALERT_DIALOG,
+  TOGGLE_DELETE_DIALOG,
+  SET_FILTERED_ARTWORKS,
+}
 
+// Define action interface
+interface Action {
+  type: ActionType;
+  payload?: any;
+}
+
+// Define initial state
+const initialState = {
+  selectedArtwork: null,
+  bidValue: null,
+  isAlertDialogOpen: false,
+  isDeleteDialogOpen: false,
+  filteredArtworks: [],
+};
+
+// Define reducer function
+const reducer = (state: any, action: Action) => {
+  switch (action.type) {
+    case ActionType.SET_SELECTED_ARTWORK:
+      return { ...state, selectedArtwork: action.payload };
+    case ActionType.SET_BID_VALUE:
+      return { ...state, bidValue: action.payload };
+    case ActionType.TOGGLE_ALERT_DIALOG:
+      return { ...state, isAlertDialogOpen: action.payload };
+    case ActionType.TOGGLE_DELETE_DIALOG:
+      return { ...state, isDeleteDialogOpen: action.payload };
+    case ActionType.SET_FILTERED_ARTWORKS:
+      return { ...state, filteredArtworks: action.payload };
+    default:
+      return state;
+  }
+};
+
+const ListArtworks = ({ artworkData }: Props) => {
+  
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { selectedArtwork, bidValue, isAlertDialogOpen, isDeleteDialogOpen, filteredArtworks } = state;
+  
   const { artWorksData, isArtWorkLoading, refetchArtworks } = useGetArtworks();
   const { deleteArtwork, isdeleteSuccess } = useDeleteArtwork();
   const { postBidMutation, isPostBidPending } = usePostBid();
+  
+  const cancelRef = useRef<HTMLButtonElement | null>(null);
+  const userId = localStorage.getItem("userId");
+  
 
   useEffect(() => {
     // Fetch artworks data when the component mounts
@@ -52,30 +94,30 @@ const ListArtworks = ({ artworkData }: Props) => {
   }, [refetchArtworks]);
 
   const openAlertDialog = (artwork: Artwork) => {
-    setSelectedArtwork(artwork);
-    setBidValue(artwork.Highest_bid + 500);
-    setIsAlertDialogOpen(true);
+    dispatch({ type: ActionType.SET_SELECTED_ARTWORK, payload: artwork });
+    dispatch({ type: ActionType.SET_BID_VALUE, payload: artwork.Highest_bid + 500 });
+    dispatch({ type: ActionType.TOGGLE_ALERT_DIALOG, payload: true });
   };
 
   const closeAlertDialog = () => {
-    setIsAlertDialogOpen(false);
-    setSelectedArtwork(null);
-    setBidValue(null);
+    dispatch({ type: ActionType.TOGGLE_ALERT_DIALOG, payload: false });
+    dispatch({ type: ActionType.SET_SELECTED_ARTWORK, payload: null });
+    dispatch({ type: ActionType.SET_BID_VALUE, payload: null });
   };
 
   const openDeleteDialog = (artwork: Artwork) => {
-    setSelectedArtwork(artwork);
-    setIsDeleteDialogOpen(true);
+    dispatch({ type: ActionType.SET_SELECTED_ARTWORK, payload: artwork });
+    dispatch({ type: ActionType.TOGGLE_DELETE_DIALOG, payload: true });
   };
 
   const closeDeleteDialog = () => {
-    setIsDeleteDialogOpen(false);
-    setSelectedArtwork(null);
+    dispatch({ type: ActionType.TOGGLE_DELETE_DIALOG, payload: false });
+    dispatch({ type: ActionType.SET_SELECTED_ARTWORK, payload: null });
   };
 
   const handleBidInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(event.target.value);
-    setBidValue(value);
+    dispatch({ type: ActionType.SET_BID_VALUE, payload: value });
   };
 
   const handleConfirmBid = () => {
@@ -111,19 +153,17 @@ const ListArtworks = ({ artworkData }: Props) => {
     }
   };
 
-  const userId = localStorage.getItem("userId");
-
   const handleSearch = (searchTerm: string) => {
     const filtered = artWorksData?.data.filter((artwork: Artwork) =>
       artwork.Name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredArtworks(filtered);
+    dispatch({ type: ActionType.SET_FILTERED_ARTWORKS, payload: filtered });
     // Trigger refetch after search
     refetchArtworks();
   };
 
   useEffect(() => {
-    artWorksData?.data && setFilteredArtworks(artWorksData?.data);
+    artWorksData?.data && dispatch({ type: ActionType.SET_FILTERED_ARTWORKS, payload: artWorksData.data });
   }, [artWorksData?.data]);
 
   const handleSort = (sortOption: string) => {
@@ -135,19 +175,19 @@ const ListArtworks = ({ artworkData }: Props) => {
       }
       return 0; // Add a default return value to handle other cases
     });
-    setFilteredArtworks(sorted);
+    dispatch({ type: ActionType.SET_FILTERED_ARTWORKS, payload: sorted });
     // Trigger refetch after sort
     refetchArtworks();
   };
 
   const handleFilter = (category: string) => {
     if (category === "") {
-      setFilteredArtworks(artWorksData?.data);
+      dispatch({ type: ActionType.SET_FILTERED_ARTWORKS, payload: artWorksData?.data });
     } else {
       const filtered = artWorksData?.data.filter(
         (artwork: Artwork) => artwork.Category === category
       );
-      setFilteredArtworks(filtered);
+      dispatch({ type: ActionType.SET_FILTERED_ARTWORKS, payload: filtered });
     }
     // Trigger refetch after filter
     refetchArtworks();
@@ -162,6 +202,7 @@ const ListArtworks = ({ artworkData }: Props) => {
   if (isArtWorkLoading) {
     return <SpinnerBro />;
   }
+
   return (
     artWorksData?.data && (
       <VStack spacing={6} alignItems="stretch">
