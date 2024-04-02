@@ -28,7 +28,9 @@ const SignUp = () => {
     if (!isSignUpPending) {
       signUpMutation(payload, {
         onSuccess: () => {
-          navigate("/");
+          console.log("I'm in sign up-------> ", payload);
+
+          navigate("/list-artworks");
         },
       });
     }

@@ -10,6 +10,7 @@ import {
   Text,
   Image,
   Box,
+  Input,
   AlertDialog,
   AlertDialogOverlay,
   AlertDialogContent,
@@ -17,7 +18,6 @@ import {
   AlertDialogBody,
   AlertDialogFooter,
   AlertDialogCloseButton,
-  Input,
   VStack,
 } from "@chakra-ui/react";
 import { Artwork } from "../../../Types/types";
@@ -38,12 +38,13 @@ const ListArtworks = ({ artworkData }: Props) => {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [bidValue, setBidValue] = useState<number | null>(null);
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const cancelRef = useRef<HTMLButtonElement | null>(null);
   const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([]);
 
   const { artWorksData, isArtWorkLoading, refetchArtworks } = useGetArtworks();
   const { deleteArtwork, isdeleteSuccess } = useDeleteArtwork();
-  const { postBidMutation, isPostBidPending, isPostBidSuccess } = usePostBid();
+  const { postBidMutation, isPostBidPending } = usePostBid();
 
   useEffect(() => {
     // Fetch artworks data when the component mounts
@@ -62,6 +63,16 @@ const ListArtworks = ({ artworkData }: Props) => {
     setBidValue(null);
   };
 
+  const openDeleteDialog = (artwork: Artwork) => {
+    setSelectedArtwork(artwork);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setSelectedArtwork(null);
+  };
+
   const handleBidInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(event.target.value);
     setBidValue(value);
@@ -77,7 +88,7 @@ const ListArtworks = ({ artworkData }: Props) => {
               amount: bidValue,
             },
             {
-              onSuccess: ()=>{
+              onSuccess: () => {
                 refetchArtworks();
               },
               onError: (error) => {
@@ -86,13 +97,17 @@ const ListArtworks = ({ artworkData }: Props) => {
             }
           );
         }
-        // alert(
-        //   `Bid of $${bidValue} placed successfully for ${selectedArtwork.Name}.`
-        // );
         closeAlertDialog();
       } else {
         alert(`Bid must be greater than ${selectedArtwork.Highest_bid}`);
       }
+    }
+  };
+
+  const handleDeleteArtwork = () => {
+    if (selectedArtwork) {
+      deleteArtwork(selectedArtwork.Id);
+      closeDeleteDialog();
     }
   };
 
@@ -211,16 +226,41 @@ const ListArtworks = ({ artworkData }: Props) => {
                   )}
 
                   {userId === artwork.Owner_id && (
-                    <Button
-                      colorScheme="red"
-                      borderRadius="md"
-                      // _hover={}
-                      onClick={() => {
-                        deleteArtwork(artwork.Id);
-                      }}
-                    >
-                      Delete Artwork
-                    </Button>
+                    <>
+                      <Button
+                        colorScheme="red"
+                        borderRadius="md"
+                        onClick={() => openDeleteDialog(artwork)}
+                      >
+                        Delete Artwork
+                      </Button>
+                      <AlertDialog
+                        isOpen={isDeleteDialogOpen}
+                        leastDestructiveRef={cancelRef}
+                        onClose={closeDeleteDialog}
+                      >
+                        <AlertDialogOverlay />
+                        <AlertDialogContent>
+                          <AlertDialogHeader>Delete Artwork</AlertDialogHeader>
+                          <AlertDialogCloseButton />
+                          <AlertDialogBody>
+                            Are you sure you want to delete this artwork?
+                          </AlertDialogBody>
+                          <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={closeDeleteDialog}>
+                              Cancel
+                            </Button>
+                            <Button
+                              colorScheme="red"
+                              ml={3}
+                              onClick={handleDeleteArtwork}
+                            >
+                              Delete
+                            </Button>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </>
                   )}
                 </CardFooter>
               </Card>

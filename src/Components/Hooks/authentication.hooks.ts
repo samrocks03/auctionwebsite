@@ -13,7 +13,8 @@ export const useSignUpAccount = () => {
         mutationKey: ['signUpAccount'],
         mutationFn: (payload: IPostSignUp) => axios.post(SIGNUP_API, payload, { withCredentials: true }),
         onSuccess: (data) => {
-            console.log(data)
+            // console.log("This is new dataaaaaaaaaa--> ",data)
+            // const { role_id, id, }
         },
         onError: (error: AxiosError) => {
             const err = (error.response?.data as { error_msg: string })?.error_msg;
