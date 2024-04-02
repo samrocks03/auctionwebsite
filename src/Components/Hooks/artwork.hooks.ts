@@ -10,7 +10,7 @@ export const useGetArtworks = (start: number, count: number) => {
         queryFn: () => axios.get(`${ARTWORKS_API}?start=${start}&count=${count}`, { withCredentials: true }),
     });
     return {
-        artWorksData: data,
+        artWorksData: data?.data,
         isArtWorkLoading: isLoading,
         isArtWorkError: error,
         refetchArtworks: refetch
@@ -49,7 +49,7 @@ export const usePostArtworks = () => {
             toast({
                 title: "Artwork created!",
                 description: "Your artwork has been created!",
-
+                position: "top-right",
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -61,6 +61,7 @@ export const usePostArtworks = () => {
             toast({
                 title: "Error!",
                 description: `${err}`,
+                position: "top-right",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -86,6 +87,7 @@ export const usePostBid = () => {
                 title: "Bid created !",
                 description: "Your bid has been created successfully!",
                 status: "success",
+                position: "top-right",
                 duration: 3000,
                 isClosable: true,
             });
@@ -95,6 +97,7 @@ export const usePostBid = () => {
             toast({
                 title: "Error!",
                 description: `${err}`,
+                position: "top-right",
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -113,12 +116,21 @@ export const usePostBid = () => {
 
 export const useDeleteArtwork = () => {
     // const { refetchTodos } = useFetch({ _page: 1, _limit: 5 })
+    const toast = useToast();
     const { mutate, isSuccess, isPending } = useMutation({
         mutationFn: (id: string) => {
             return axios.delete(`${DELETE_BID_API}/${id}`, { withCredentials: true })
         },
         onSuccess: () => {
             // refetchTodos()
+            toast({
+                title: "Artwork deleted !",
+                description: "Your artwork has been deleted successfully!",
+                status: "success",
+                position: "top-right",
+                duration: 3000,
+                isClosable: true,
+            });
         },
     })
     return {

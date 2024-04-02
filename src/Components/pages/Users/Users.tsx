@@ -16,9 +16,15 @@ const Users = () => {
   const { usersData, isUsersLoading } = useGetUsers();
   console.log(usersData?.data);
 
-  if (isUsersLoading) {
-    return <Text>Loading...</Text>;
-  }
+  const userRoles = {
+    super_admin: "Super Admin",
+    admin: "Administrator",
+    user: "Mr User",
+  };
+
+  // if (isUsersLoading) {
+  //   return <Text>Loading...</Text>;
+  // }
 
   return (
     usersData?.data && (
@@ -41,7 +47,10 @@ const Users = () => {
                 />
                 <VStack ml={4} alignItems="flex-start">
                   <Text fontWeight="bold">{`${user.first_name} ${user.last_name}`}</Text>
-                  <Text>{user.email}</Text>
+                  <Text>email: {user.email}</Text>
+                  <Text>
+                    Role: {userRoles[user.role_id as keyof typeof userRoles]}
+                  </Text>
                 </VStack>
               </Flex>
               <Divider />

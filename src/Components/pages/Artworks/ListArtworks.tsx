@@ -94,11 +94,14 @@ const ListArtworks = ({ artworkData }: Props) => {
 
   const cancelRef = useRef<HTMLButtonElement | null>(null);
   const userId = localStorage.getItem("userId");
+  const userRole = localStorage.getItem("userRole");
 
   useEffect(() => {
     // Fetch artworks data when the component mounts
     refetchArtworks();
   }, [refetchArtworks]);
+
+  console.log(artWorksData);
 
   const openAlertDialog = (artwork: Artwork) => {
     dispatch({ type: ActionType.SET_SELECTED_ARTWORK, payload: artwork });
@@ -164,7 +167,7 @@ const ListArtworks = ({ artworkData }: Props) => {
   };
 
   const handleSearch = (searchTerm: string) => {
-    const filtered = artWorksData?.data.filter((artwork: Artwork) =>
+    const filtered = artWorksData?.respBody.filter((artwork: Artwork) =>
       artwork.Name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     dispatch({ type: ActionType.SET_FILTERED_ARTWORKS, payload: filtered });
@@ -173,12 +176,12 @@ const ListArtworks = ({ artworkData }: Props) => {
   };
 
   useEffect(() => {
-    artWorksData?.data &&
+    artWorksData?.respBody &&
       dispatch({
         type: ActionType.SET_FILTERED_ARTWORKS,
-        payload: artWorksData.data,
+        payload: artWorksData.respBody,
       });
-  }, [artWorksData?.data]);
+  }, [artWorksData?.respBody]);
 
   const handleSort = (sortOption: string) => {
     const sorted = [...filteredArtworks].sort((a, b) => {
@@ -198,10 +201,10 @@ const ListArtworks = ({ artworkData }: Props) => {
     if (category === "") {
       dispatch({
         type: ActionType.SET_FILTERED_ARTWORKS,
-        payload: artWorksData?.data,
+        payload: artWorksData?.respBody,
       });
     } else {
-      const filtered = artWorksData?.data.filter(
+      const filtered = artWorksData?.respBody.filter(
         (artwork: Artwork) => artwork.Category === category
       );
       dispatch({ type: ActionType.SET_FILTERED_ARTWORKS, payload: filtered });
@@ -221,7 +224,7 @@ const ListArtworks = ({ artworkData }: Props) => {
   }
 
   return (
-    artWorksData?.data && (
+    artWorksData?.respBody && (
       <VStack spacing={6} alignItems="stretch">
         <Box bg="gray.100" py="8">
           <ArtworkFilterBar
@@ -272,7 +275,7 @@ const ListArtworks = ({ artworkData }: Props) => {
                   display="flex"
                   justifyContent="flex-end"
                 >
-                  {userId !== artwork.Owner_id && (
+                  {userId !== artwork.Owner_id && userRole !== "admin" && (
                     <Button
                       colorScheme="blue"
                       borderRadius="md"
@@ -283,12 +286,13 @@ const ListArtworks = ({ artworkData }: Props) => {
                     </Button>
                   )}
 
-                  {userId === artwork.Owner_id && (
+                  {(userId === artwork.Owner_id || userRole === "admin") && (
                     <>
                       <Button
                         colorScheme="red"
                         borderRadius="md"
                         onClick={() => openDeleteDialog(artwork)}
+                        size="md"
                       >
                         Delete Artwork
                       </Button>

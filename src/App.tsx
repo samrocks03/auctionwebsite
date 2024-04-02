@@ -13,9 +13,11 @@ import { artworkData } from "./constants";
 import { Artwork } from "./Types/types";
 import Users from "./Components/pages/Users/Users";
 import Protected from "./Protected";
+// import { useEffect } from "react";
 // import Protected from "./protected"; // Import the Protected component
 const queryClient = new QueryClient();
 
+// const navigate = useNavigate();
 export const App = () => (
   <div>
     <QueryClientProvider client={queryClient}>
@@ -23,6 +25,7 @@ export const App = () => (
         <Router>
           <Routes>
             <Route path="/signup" element={<SignUp />} />
+
             <Route path="/login" element={<Login />} />
 
             {/* Use Protected component for routes that require authentication */}

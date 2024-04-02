@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import { ARTWORKS_API, SIGNUP_API, LOGIN_API, LOGOUT_API } from "../../ENDPOINTS";
+import { SIGNUP_API, LOGIN_API, LOGOUT_API } from "../../ENDPOINTS";
 import { toast } from "react-toastify";
 import { IPostLogin, IPostSignUp } from "../../Types/authentication.types";
 import { useToast } from "@chakra-ui/react";

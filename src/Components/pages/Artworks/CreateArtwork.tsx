@@ -38,8 +38,7 @@ const CreateArtworkForm = () => {
   const [isAuctionCreated, setIsAuctionCreated] = useState(false);
 
   const cancelRef = useRef<HTMLButtonElement | null>(null);
-  const { postArtworksMutation, isPostArtworksPending } = usePostArtworks();
-  const toast = useToast();
+  const { postArtworksMutation } = usePostArtworks();
 
   const handleCloseConfirmation = () => {
     setIsConfirmationOpen(false);
@@ -79,7 +78,6 @@ const CreateArtworkForm = () => {
     validationSchema: createArtWorkSchema,
     onSubmit: (values, actions) => {
       // handleConfirmCreateAuction(values);
-      // console.log("Artwork created in create artwork!");
     },
   });
 

@@ -5,6 +5,7 @@ import AuthForm from "./AuthForm";
 import { useSignInAccount } from "../../Hooks/authentication.hooks";
 import { IPostLogin } from "../../../Types/authentication.types";
 import { ToastContainer } from "react-toastify";
+import { useEffect } from "react";
 
 const initialValues = {
   email: "svkulkarni23@gmail.com",
@@ -24,7 +25,7 @@ const Login = () => {
     if (!isSignInPending) {
       signInMutation(payload, {
         onSuccess: () => {
-          console.log("I'm loginnnnnnnnnnn")
+          console.log("I'm loginnnnnnnnnnn");
           navigate("/list-artworks");
         },
         onError: (error) => {
@@ -33,6 +34,11 @@ const Login = () => {
       });
     }
   };
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/list-artworks");
+    }
+  }, [navigate]);
 
   return (
     <>
