@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { ARTWORKS_API, DELETE_BID_API, FILTER_API, POST_ARTWORKS_API, POST_BID_API } from "../../ENDPOINTS";
+import { ARTWORKS_API, DELETE_BID_API, POST_ARTWORKS_API, POST_BID_API } from "../../ENDPOINTS";
 import axios, { AxiosError } from "axios";
 import { IBid, ICreateArtwork } from "../../Types/authentication.types";
 import { useToast } from "@chakra-ui/react";

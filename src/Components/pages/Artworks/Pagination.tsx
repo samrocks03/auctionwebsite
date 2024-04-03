@@ -32,20 +32,27 @@ export const Pagination = ({
       >
         Previous
       </Button>
+      
       <Box>
+
         <Text mr={2}>Page</Text>
         <Select
           value={currentPage}
           onChange={(e) => onPageChange(parseInt(e.target.value))}
         >
-          {[...Array(totalPages)].map((_, index) => (
+          {
+            [...Array(totalPages)].map((_, index) => (
             <option key={index + 1} value={index + 1}>
               {index + 1}
             </option>
-          ))}
+            ))
+          }
         </Select>
         <Text mx={2}>of {totalPages}</Text>
+        
       </Box>
+
+      
       <Button
         onClick={() => onPageChange(currentPage + 1)}
         hidden={currentPage === totalPages}

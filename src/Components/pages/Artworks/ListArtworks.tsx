@@ -1,4 +1,10 @@
-import React, { useRef, useEffect, useReducer, useState } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useReducer,
+  useCallback,
+  ChangeEvent,
+} from "react";
 import {
   SimpleGrid,
   Heading,
@@ -19,6 +25,7 @@ import {
   AlertDialogFooter,
   AlertDialogCloseButton,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
 import { Artwork } from "../../../Types/types";
 import { SpinnerBro } from "../../Spinner";
@@ -42,6 +49,9 @@ enum ActionType {
   TOGGLE_ALERT_DIALOG,
   TOGGLE_DELETE_DIALOG,
   SET_FILTERED_ARTWORKS,
+  SET_CURRENT_PAGE,
+  SET_PAGE_SIZE,
+  SET_TOTAL_PAGES,
 }
 
 // Define action interface
@@ -57,6 +67,9 @@ const initialState = {
   isAlertDialogOpen: false,
   isDeleteDialogOpen: false,
   filteredArtworks: [],
+  currentPage: 1,
+  pageSize: 6,
+  totalPages: 1,
 };
 
 // Define reducer function
@@ -72,16 +85,18 @@ const reducer = (state: any, action: Action) => {
       return { ...state, isDeleteDialogOpen: action.payload };
     case ActionType.SET_FILTERED_ARTWORKS:
       return { ...state, filteredArtworks: action.payload };
+    case ActionType.SET_CURRENT_PAGE:
+      return { ...state, currentPage: action.payload };
+    case ActionType.SET_PAGE_SIZE:
+      return { ...state, pageSize: action.payload };
+    case ActionType.SET_TOTAL_PAGES:
+      return { ...state, totalPages: action.payload };
     default:
       return state;
   }
 };
 
 const ListArtworks = ({ artworkData }: Props) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(6);
-  const [totalPages, setTotalPages] = useState(1);
-
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     selectedArtwork,
@@ -89,28 +104,36 @@ const ListArtworks = ({ artworkData }: Props) => {
     isAlertDialogOpen,
     isDeleteDialogOpen,
     filteredArtworks,
+    currentPage,
+    pageSize,
+    totalPages,
   } = state;
 
-  // const gettingPages: IParams = { start: 0, count: 20 };
   const { artWorksData, totalCount, isArtWorkLoading, refetchArtworks } =
     useGetArtworks({
-      start:  (currentPage - 1) * pageSize,
-      count: pageSize,
+      start: (currentPage - 1) * pageSize, //offset to start fetching data * num of items
+      count: pageSize, // num of items to fetch
     });
 
+  // to calculate the amount of pages that will come after we calculate (totalCount / pageSize)
   useEffect(() => {
     if (totalCount) {
-      setTotalPages(Math.ceil(totalCount / pageSize));
+      dispatch({
+        type: ActionType.SET_TOTAL_PAGES,
+        payload: Math.ceil(totalCount / pageSize),
+      });
     }
   }, [totalCount, pageSize]);
 
+  // helps to set current page --> to page number
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    dispatch({ type: ActionType.SET_CURRENT_PAGE, payload: page });
   };
 
+  // to set the page size and to reset the current page as 1 after the page size has been set == size
   const handlePageSizeChange = (size: number) => {
-    setPageSize(size);
-    setCurrentPage(1);
+    dispatch({ type: ActionType.SET_PAGE_SIZE, payload: size });
+    dispatch({ type: ActionType.SET_CURRENT_PAGE, payload: 1 });
   };
 
   const { deleteArtwork, isdeleteSuccess } = useDeleteArtwork();
@@ -150,11 +173,13 @@ const ListArtworks = ({ artworkData }: Props) => {
     dispatch({ type: ActionType.SET_SELECTED_ARTWORK, payload: null });
   };
 
-  const handleBidInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBidInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(event.target.value);
     dispatch({ type: ActionType.SET_BID_VALUE, payload: value });
   };
 
+  const toast = useToast();
+  // add confirm bid 
   const handleConfirmBid = () => {
     if (bidValue && selectedArtwork) {
       if (bidValue > selectedArtwork.Highest_bid) {
@@ -176,11 +201,20 @@ const ListArtworks = ({ artworkData }: Props) => {
         }
         closeAlertDialog();
       } else {
-        alert(`Bid must be greater than ${selectedArtwork.Highest_bid}`);
+        toast({
+          title: "Error",
+          description: `Bid must be greater than ${selectedArtwork.Highest_bid}`,
+          position: "top-right",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        // alert(`Bid must be greater than ${selectedArtwork.Highest_bid}`);
       }
     }
   };
 
+  // delete artwork 
   const handleDeleteArtwork = () => {
     if (selectedArtwork) {
       deleteArtwork(selectedArtwork.Id);
